@@ -1,7 +1,8 @@
 # **AI-CHATBOT**
 This repo is about an AI Chatbot using Python and Flask REST API<br>
 
-![image](https://github.com/Ramakm/AI-Chatbot/assets/8182816/679576fe-14b0-4a0c-af8f-ff234fb10922)
+![screen-capture](https://github.com/Ramakm/AI-Chatbot/assets/8182816/83b7fd0a-21c7-4889-b4bf-43dd5420da91)
+
 
 # **STEPS TO FOLLOW:**
 
@@ -68,6 +69,7 @@ source ./venv/bin/activate  # sh, bash, or zsh
 * After running ```train.py```, next run the ```app.py``` to initialize and start the bot.
 * To add more terms and vocabulary to the bot, modify the ```intents.json``` file and add your personalized words and retrain the model again.
 * Accessing the Chatbot: After running the `Flask app (app.py)`, you can access the chatbot by navigating to ```http://127.0.0.1:5000/``` in your web browser. If you're using Ngrok, you'll access the chatbot through the Ngrok-generated URL.
+![image](https://github.com/Ramakm/AI-Chatbot/assets/8182816/679576fe-14b0-4a0c-af8f-ff234fb10922)
 
 <!-- Actual text -->
 # **Find me on**
