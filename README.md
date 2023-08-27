@@ -1,6 +1,7 @@
 # **AI-CHATBOT**
-This repo is about an AI Chatbot using Python and Flask REST API
-![image](https://github.com/Ramakm/AI-Chatbot/assets/8182816/b1b2838a-cfc5-421e-a730-733262cf8b26)
+This repo is about an AI Chatbot using Python and Flask REST API<br>
+
+![image](https://github.com/Ramakm/AI-Chatbot/assets/8182816/679576fe-14b0-4a0c-af8f-ff234fb10922)
 
 # **STEPS TO FOLLOW:**
 
