@@ -71,6 +71,13 @@ source ./venv/bin/activate  # sh, bash, or zsh
 * Accessing the Chatbot: After running the `Flask app (app.py)`, you can access the chatbot by navigating to ```http://127.0.0.1:5000/``` in your web browser. If you're using Ngrok, you'll access the chatbot through the Ngrok-generated URL.
 ![image](https://github.com/Ramakm/AI-Chatbot/assets/8182816/679576fe-14b0-4a0c-af8f-ff234fb10922)
 
+
+# Blog Related To This Project:
+
+I have wrote a whole detailed blog related to this project. Check it out:
+
+[Build An AI Chatbot From Scratch](https://medium.com/@ramakrushna_mohapatra8594/create-an-ai-chatbot-from-scratch-738ea385d108)
+
 <!-- Actual text -->
 # **Find me on**
 [![LinkedIn](https://img.icons8.com/color/48/000000/linkedin.png)](https://www.linkedin.com/in/ramakrushnamohapatra/)
@@ -81,6 +88,7 @@ source ./venv/bin/activate  # sh, bash, or zsh
 Hit an issue bottom in this repo or else reach out to me via LinkedIN or Twitter message. I will try to reply to you as soon as possible.
 
 Hopefully You will able to run this one. **Give it a `star` and `fork` this repo**.
+
 
 <a href="https://www.buymeacoffee.com/Ramakrushna" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a>
 
