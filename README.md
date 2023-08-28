@@ -78,7 +78,7 @@ source ./venv/bin/activate  # sh, bash, or zsh
 
 ## **Having troubles implementing?**
 
-Hit a issue bottom in this repo or else reach out to me via LinkedIN or Twitter msg. I will try to reply to you as soon as possible.
+Hit an issue bottom in this repo or else reach out to me via LinkedIN or Twitter message. I will try to reply to you as soon as possible.
 
 Hopefully You will able to run this one. **Give it a `star` and `fork` this repo**.
 
