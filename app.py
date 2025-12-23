@@ -1,106 +1,131 @@
-# libraries
+# FastAPI Chatbot Server
 import random
 import numpy as np
 import pickle
 import json
-from flask import Flask, render_template, request
-from flask_ngrok import run_with_ngrok
+import os
+from fastapi import FastAPI, HTTPException
+from fastapi.responses import FileResponse, HTMLResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 import nltk
 from keras.models import load_model
 from nltk.stem import WordNetLemmatizer
+
+# Initialize lemmatizer
 lemmatizer = WordNetLemmatizer()
 
+# Create FastAPI app
+app = FastAPI(
+    title="AI Chatbot API",
+    description="Modern AI Chatbot powered by FastAPI",
+    version="1.0.0"
+)
 
-# chat initialization
-model = load_model("chatbot_model.h5")
-# intents = json.loads(open("intents.json").read())
-data_file = open("F:\\Data Science Course - IIITB\\NLP\\Chatbot\\AI Chatbot\\An-AI-Chatbot-in-Python-and-Flask-main\\intents.json").read()
-words = pickle.load(open("words.pkl", "rb"))
-classes = pickle.load(open("classes.pkl", "rb"))
+# Add CORS middleware for cross-origin requests
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-app = Flask(__name__)
-# run_with_ngrok(app) 
+# Mount static files
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
-@app.route("/")
-def home():
-    return render_template("index.html")
+# Load model and data
+try:
+    model = load_model("chatbot_model.h5")
+    words = pickle.load(open("words.pkl", "rb"))
+    classes = pickle.load(open("classes.pkl", "rb"))
+    with open("intents.json", "r") as f:
+        intents = json.load(f)
+except Exception as e:
+    raise RuntimeError(f"Error loading model or data files: {str(e)}")
 
+# Request model
+class MessageRequest(BaseModel):
+    msg: str
 
-# @app.route("/get", methods=["POST"])
-# def chatbot_response():
-#     msg = request.form["msg"]
-#     if msg.startswith('my name is'):
-#         name = msg[11:]
-#         ints = predict_class(msg, model)
-#         res1 = getResponse(ints, intents)
-#         res =res1.replace("{n}",name)
-#     elif msg.startswith('hi my name is'):
-#         name = msg[14:]
-#         ints = predict_class(msg, model)
-#         res1 = getResponse(ints, intents)
-#         res =res1.replace("{n}",name)
-#     else:
-#         ints = predict_class(msg, model)
-#         res = getResponse(ints, intents)
-#     return res
-#Updated
+# Response model
+class ChatResponse(BaseModel):
+    response: str
+    confidence: float
 
-# ... Your previous code ...
+@app.get("/", response_class=HTMLResponse)
+async def home():
+    with open("templates/index.html", "r") as f:
+        return f.read()
 
-@app.route("/get", methods=["POST"])
-def chatbot_response():
-    msg = request.form["msg"]
+@app.post("/api/chat", response_model=ChatResponse)
+async def chatbot_response(request: MessageRequest):
+    if not request.msg or request.msg.strip() == "":
+        raise HTTPException(status_code=400, detail="Message cannot be empty")
+    
+    msg = request.msg.strip()
+    
+    try:
+        # Handle name patterns
+        if msg.lower().startswith('my name is'):
+            name = msg[11:].strip()
+            ints = predict_class(msg, model)
+            confidence = float(ints[0]["probability"]) if ints else 0.0
+            res1 = getResponse(ints, intents)
+            res = res1.replace("{n}", name)
+        elif msg.lower().startswith('hi my name is'):
+            name = msg[14:].strip()
+            ints = predict_class(msg, model)
+            confidence = float(ints[0]["probability"]) if ints else 0.0
+            res1 = getResponse(ints, intents)
+            res = res1.replace("{n}", name)
+        elif msg.lower().startswith('i am'):
+            name = msg[4:].strip()
+            ints = predict_class(msg, model)
+            confidence = float(ints[0]["probability"]) if ints else 0.0
+            res1 = getResponse(ints, intents)
+            res = res1.replace("{n}", name)
+        else:
+            ints = predict_class(msg, model)
+            confidence = float(ints[0]["probability"]) if ints else 0.0
+            res = getResponse(ints, intents)
+        
+        return ChatResponse(response=res, confidence=confidence)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error processing message: {str(e)}")
 
-    # Load and process the intents JSON file
-    data_file = open("F:\\Data Science Course - IIITB\\NLP\\Chatbot\\AI Chatbot\\An-AI-Chatbot-in-Python-and-Flask-main\\intents.json").read()
-    intents = json.loads(data_file)
+@app.get("/health")
+async def health_check():
+    return {"status": "healthy", "model": "loaded"}
 
-    # Rest of your existing code
-    if msg.startswith('my name is'):
-        name = msg[11:]
-        ints = predict_class(msg, model)
-        res1 = getResponse(ints, intents)
-        res = res1.replace("{n}", name)
-    elif msg.startswith('hi my name is'):
-        name = msg[14:]
-        ints = predict_class(msg, model)
-        res1 = getResponse(ints, intents)
-        res = res1.replace("{n}", name)
-    else:
-        ints = predict_class(msg, model)
-        res = getResponse(ints, intents)
-    return res
-
-# chat functionalities
+# Chat processing functions
 def clean_up_sentence(sentence):
+    """Tokenize and lemmatize sentence"""
     sentence_words = nltk.word_tokenize(sentence)
     sentence_words = [lemmatizer.lemmatize(word.lower()) for word in sentence_words]
     return sentence_words
 
 
-# return bag of words array: 0 or 1 for each word in the bag that exists in the sentence
-def bow(sentence, words, show_details=True):
-    # tokenize the pattern
+def bow(sentence, words, show_details=False):
+    """Create bag of words array for sentence"""
     sentence_words = clean_up_sentence(sentence)
-    # bag of words - matrix of N words, vocabulary matrix
     bag = [0] * len(words)
     for s in sentence_words:
         for i, w in enumerate(words):
             if w == s:
-                # assign 1 if current word is in the vocabulary position
                 bag[i] = 1
                 if show_details:
-                    print("found in bag: %s" % w)
+                    print(f"found in bag: {w}")
     return np.array(bag)
 
 
 def predict_class(sentence, model):
-    # filter out predictions below a threshold
+    """Predict intent class from sentence"""
     p = bow(sentence, words, show_details=False)
     res = model.predict(np.array([p]))[0]
     ERROR_THRESHOLD = 0.25
     results = [[i, r] for i, r in enumerate(res) if r > ERROR_THRESHOLD]
-    # sort by strength of probability
     results.sort(key=lambda x: x[1], reverse=True)
     return_list = []
     for r in results:
@@ -109,15 +134,20 @@ def predict_class(sentence, model):
 
 
 def getResponse(ints, intents_json):
+    """Get random response for predicted intent"""
+    if not ints:
+        return "Sorry, I didn't understand that. Could you please rephrase?"
+    
     tag = ints[0]["intent"]
     list_of_intents = intents_json["intents"]
     for i in list_of_intents:
         if i["tag"] == tag:
             result = random.choice(i["responses"])
-            break
-    return result
+            return result
+    return "Sorry, I didn't understand that. Could you please rephrase?"
 
 
 if __name__ == "__main__":
-    app.run()
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
 

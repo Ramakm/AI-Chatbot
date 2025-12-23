@@ -1,0 +1,8 @@
+fastapi==0.104.1
+uvicorn==0.24.0
+pydantic==2.5.0
+python-multipart==0.0.6
+numpy==1.24.3
+tensorflow==2.14.0
+keras==2.14.0
+nltk==3.8.1

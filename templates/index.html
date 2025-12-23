@@ -1,58 +1,163 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css')}}" />
-    <!-- <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css.css')}}" /> -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chatbot - Modern Chat Interface</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}" />
 </head>
 
 <body>
-    <div class="row">
-        <div class="col-md-10 mr-auto ml-auto">
-            <h1>Ramakrushna Mohapatra-ChatBot</h1>
-            <form>
-                <div id="chatbox">
-                    <div class="col-md-8 ml-auto mr-auto text-center">
-                        <p class="botText"><span>Hi! I'm Your bot.</span></p>
-                    </div>
+    <div class="chatbot-container">
+        <!-- Header -->
+        <div class="chat-header">
+            <div class="header-content">
+                <div class="bot-avatar">
+                    <i class="fas fa-robot"></i>
                 </div>
-                <div id="userInput" class="row">
-                    <div class="col-md-10">
-                        <input id="text" type="text" name="msg" placeholder="Message" class="form-control">
-                        <button type="submit" id="send" class="btn btn-warning">Send</button>
-                    </div>
+                <div class="header-info">
+                    <h1 class="bot-name">AI Assistant</h1>
+                    <p class="bot-status"><span class="status-dot"></span>Online</p>
                 </div>
+            </div>
+            <div class="header-actions">
+                <button class="btn-icon" title="Info">
+                    <i class="fas fa-info-circle"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Chat Messages Area -->
+        <div class="chat-messages" id="chatbox">
+            <div class="message bot-message">
+                <div class="message-avatar">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="message-content">
+                    <div class="message-bubble">
+                        <span>👋 Hello! I'm your AI Assistant. How can I help you today?</span>
+                    </div>
+                    <div class="message-time">Just now</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Input Area -->
+        <div class="chat-input-area">
+            <form id="chatForm" class="chat-form">
+                <div class="input-wrapper">
+                    <input 
+                        id="text" 
+                        type="text" 
+                        name="msg" 
+                        placeholder="Type your message..." 
+                        class="chat-input"
+                        autocomplete="off"
+                        required
+                    >
+                    <button type="submit" id="send" class="btn-send" title="Send message">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+                <div class="input-hint">Press Enter or click the send button</div>
             </form>
         </div>
     </div>
 
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner" class="loading-spinner hidden">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
     <script>
+        // Format time
+        function formatTime() {
+            const now = new Date();
+            return now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+        }
+
+        // Add message to chat
+        function addMessage(text, isUser = false) {
+            const messageDiv = $('<div>').addClass('message').addClass(isUser ? 'user-message' : 'bot-message');
+            
+            const avatarDiv = $('<div>').addClass('message-avatar');
+            avatarDiv.html(isUser ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>');
+            
+            const contentDiv = $('<div>').addClass('message-content');
+            const bubbleDiv = $('<div>').addClass('message-bubble');
+            bubbleDiv.html('<span>' + text + '</span>');
+            
+            const timeDiv = $('<div>').addClass('message-time').text(formatTime());
+            
+            contentDiv.append(bubbleDiv);
+            contentDiv.append(timeDiv);
+            messageDiv.append(avatarDiv);
+            messageDiv.append(contentDiv);
+            
+            $('#chatbox').append(messageDiv);
+            
+            // Scroll to bottom
+            const chatMessages = document.querySelector('.chat-messages');
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Show/hide loading spinner
+        function toggleLoadingSpinner(show) {
+            if (show) {
+                $('#loadingSpinner').removeClass('hidden');
+            } else {
+                $('#loadingSpinner').addClass('hidden');
+            }
+        }
+
+        // Handle form submission
         $(document).ready(function() {
-            $("form").on("submit", function(event) {
-                var rawText = $("#text").val();
-                var userHtml = '<p class="userText"><span>' + rawText + "</span></p>";
-                $("#text").val("");
-                $("#chatbox").append(userHtml);
-                document.getElementById("userInput").scrollIntoView({
-                    block: "start",
-                    behavior: "smooth",
-                });
-                $.ajax({
-                    data: {
-                        msg: rawText,
-                    },
-                    type: "POST",
-                    url: "/get",
-                }).done(function(data) {
-                    var botHtml = '<p class="botText"><span>' + data + "</span></p>";
-                    $("#chatbox").append($.parseHTML(botHtml));
-                    document.getElementById("userInput").scrollIntoView({
-                        block: "start",
-                        behavior: "smooth",
-                    });
-                });
+            $("#chatForm").on("submit", function(event) {
                 event.preventDefault();
+                
+                const rawText = $("#text").val().trim();
+                
+                if (!rawText) {
+                    return;
+                }
+                
+                // Add user message
+                addMessage(rawText, true);
+                $("#text").val("");
+                
+                // Show loading
+                toggleLoadingSpinner(true);
+                
+                // Send to server
+                $.ajax({
+                    type: "POST",
+                    url: "/api/chat",
+                    contentType: "application/json",
+                    data: JSON.stringify({ msg: rawText }),
+                    success: function(data) {
+                        toggleLoadingSpinner(false);
+                        addMessage(data.response, false);
+                    },
+                    error: function(xhr) {
+                        toggleLoadingSpinner(false);
+                        let errorMsg = "Sorry, I encountered an error. Please try again.";
+                        if (xhr.responseJSON && xhr.responseJSON.detail) {
+                            errorMsg = xhr.responseJSON.detail;
+                        }
+                        addMessage(errorMsg, false);
+                    }
+                });
             });
         });
     </script>
