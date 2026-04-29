@@ -1,8 +1,11 @@
-fastapi==0.104.1
+fastapi==0.109.1
 uvicorn==0.24.0
 pydantic==2.5.0
-python-multipart==0.0.6
+python-multipart==0.0.7
 numpy==1.24.3
-tensorflow==2.14.0
-keras==2.14.0
-nltk==3.8.1
+tensorflow==2.15.0
+numpy==1.24.3
+nltk==3.9
+tensorflow-cpu==2.15.0
+keras==3.12.0
+nltk==3.9
