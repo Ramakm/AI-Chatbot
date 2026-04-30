@@ -1,7 +1,7 @@
 # libraries
 import random
-from tensorflow.keras.optimizers import SGD
-from keras.layers import Dense, Dropout
+from keras.optimizers import SGD
+from keras.layers import Dense, Dropout, Input
 from keras.models import load_model
 from keras.models import Sequential
 import numpy as np
@@ -10,7 +10,7 @@ import json
 import nltk
 from nltk.stem import WordNetLemmatizer
 lemmatizer = WordNetLemmatizer()
-nltk.download('omw-1.4')
+nltk.download("punkt_tab")
 nltk.download("punkt")
 nltk.download("wordnet")
 
@@ -87,16 +87,11 @@ random.shuffle(training)
 # Separate bag-of-words representations and output labels
 train_x = [item[0] for item in training]
 train_y = [item[1] for item in training]
-
-# Convert to NumPy arrays
-train_x = np.array(train_x)
-train_y = np.array(train_y)
+model.add(Input(shape=(len(train_x[0]),)))
+model.add(Dense(128, activation="relu"))
 print("Training data created")
-
-# actual training
-# Create model - 3 layers. First layer 128 neurons, second layer 64 neurons and 3rd output layer contains number of neurons
+model.add(Dense(128, activation="relu"))
 # equal to number of intents to predict output intent with softmax
-model = Sequential()
 model.add(Dense(128, input_shape=(len(train_x[0]),), activation="relu"))
 model.add(Dropout(0.5))
 model.add(Dense(64, activation="relu"))
