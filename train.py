@@ -10,6 +10,9 @@ import json
 import nltk
 from nltk.stem import WordNetLemmatizer
 lemmatizer = WordNetLemmatizer()
+lemmatizer = WordNetLemmatizer()
+nltk.download("punkt_tab")
+nltk.download('punkt_tab')
 nltk.download('omw-1.4')
 nltk.download("punkt")
 nltk.download("wordnet")
