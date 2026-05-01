@@ -1,9 +1,25 @@
+import nltk
+
+# Ensure required NLTK data packages are present before any module
+# triggers a corpus load at import time (nltk>=3.9 loads wordnet eagerly).
+nltk.download('wordnet', quiet=True)
+nltk.download('omw-1.4', quiet=True)
+
 # FastAPI Chatbot Server
 import random
 import numpy as np
 import pickle
 import json
 import os
+import subprocess
+import sys
+
+# Download required NLTK data via subprocess BEFORE importing nltk,
+# because nltk>=3.9 loads the WordNet corpus eagerly at import time
+# (class-level attribute access in nltk.stem.wordnet triggers corpus load).
+# Using subprocess avoids the circular bootstrap problem.
+subprocess.run([sys.executable, "-c", "import nltk; nltk.download('wordnet', quiet=True); nltk.download('omw-1.4', quiet=True)"], check=True)
+
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
