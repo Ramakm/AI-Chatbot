@@ -1,7 +1,7 @@
 # libraries
 import random
 from tensorflow.keras.optimizers import SGD
-from keras.layers import Dense, Dropout
+from keras.layers import Dense, Dropout, Input
 from keras.models import load_model
 from keras.models import Sequential
 import numpy as np
@@ -87,7 +87,8 @@ random.shuffle(training)
 # Separate bag-of-words representations and output labels
 train_x = [item[0] for item in training]
 train_y = [item[1] for item in training]
-
+model.add(Input(shape=(len(train_x[0]),)))
+model.add(Dense(128, activation="relu"))
 # Convert to NumPy arrays
 train_x = np.array(train_x)
 train_y = np.array(train_y)
