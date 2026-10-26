@@ -1,15 +1,57 @@
+# Version control
+.git/
+.gitignore
+
+# Virtual environments
 venv/
+env/
+ENV/
+
+# Python cache and byte code
 __pycache__/
-*.pyc
+*.py[cod]
 *.pyo
 *.pyd
 .Python
 *.egg-info/
 dist/
 build/
+
+# Terraform (exclude infra files from the application container)
+**/.terraform/
+*.tfstate
+*.tfstate.*
+.terraform.tfstate.lock.info
+*.tf
+*.tfvars
+*.tfvars.json
+.terraform.lock.hcl
+
+# Docker & Deployment configs
+docker-compose*.yml
+.dockerignore
+nginx.conf
+
+# Documentation & scripts not needed in image
+README.md
+CHANGELOG.md
+DEPLOYMENT.md
+LICENSE
+start.sh
+start.bat
+Procfile
+runtime.txt
+
+# Environment variables & secrets
 .env
-.DS_Store
-.vscode/
-.idea/
+.env.*
+
+# Logs and tests
 *.log
 .pytest_cache/
+
+# IDE & OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
